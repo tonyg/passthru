@@ -248,13 +248,17 @@ static int open_otherhost(void) {
   int sock = socket(AF_INET, SOCK_STREAM, 0);
   struct sockaddr_in s;
 
-  if (sock < 0)
-    return -1;
+  if (sock < 0) {
+    die("Could not create outbound socket (errno %d: %s).\n",
+	errno, strerror(errno));
+  }
 
   setup_other_sockaddr(&s);
 
-  if (connect(sock, (struct sockaddr *) &s, sizeof(s)) < 0)
-    return -1;
+  if (connect(sock, (struct sockaddr *) &s, sizeof(s)) < 0) {
+    die("Could not connect outbound socket (errno %d: %s).\n",
+	errno, strerror(errno));
+  }
 
   return sock;
 }
