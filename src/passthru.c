@@ -158,20 +158,18 @@ static int parse_cmdline(int argc, char *argv[]) {
       case 'o':
 	cfg.otherport = atoi(optarg);
 	have_opt_o = 1;
+	cfg.have_otherhost = 1;
 	continue;
 
       case 'h': {
 	struct hostent *h = gethostbyname(optarg);
-	unsigned char addr[4];
 
 	if (h == NULL) {
 	  fprintf(stderr, "Host not found. Bailing out.\n");
 	  break;
 	}
 
-	memcpy(addr, h->h_addr_list[0], sizeof(addr));
-	get_addr_name(cfg.otherhostname, addr);
-	memcpy(cfg.otherhostaddr, addr, sizeof(cfg.otherhostaddr));
+	memcpy(cfg.otherhostaddr, h->h_addr_list[0], sizeof(cfg.otherhostaddr));
 	cfg.have_otherhost = 1;
 	continue;
       }
@@ -197,6 +195,9 @@ static int parse_cmdline(int argc, char *argv[]) {
 
   if (!have_opt_o)
     cfg.otherport = cfg.portnumber;
+
+  if (cfg.have_otherhost)
+    get_addr_name(cfg.otherhostname, cfg.otherhostaddr);
 
   if (show_help || (!cfg.pass_udp && !cfg.pass_tcp)) {
     fprintf(stderr,
@@ -461,6 +462,10 @@ int main(int argc, char *argv[]) {
   cfg.hexmode = 1;
   cfg.timeout.tv_sec = 1; cfg.timeout.tv_usec = 0;
   memset(cfg.otherhostaddr, 0, sizeof(cfg.otherhostaddr));
+  cfg.otherhostaddr[0] = 127;
+  cfg.otherhostaddr[1] = 0;
+  cfg.otherhostaddr[2] = 0;
+  cfg.otherhostaddr[3] = 1;
 
   if (!parse_cmdline(argc, argv))
     return EXIT_FAILURE;
