@@ -372,9 +372,10 @@ static void handle_datagram(int fd, short what, void *arg) {
 
   if ((msglen = recvfrom(fd, msgbuf, DGRAM_MSGBUF_LEN, 0,
 			 (struct sockaddr *) &addr, &addrlen)) >= 0) {
+    unsigned short newport = ntohs(addr.sin_port);
     get_addr_name(newname, (unsigned char *) &addr.sin_addr.s_addr);
 
-    log_fmt("UDP: %s sent %d bytes:\n", newname, msglen);
+    log_fmt("UDP: %s:%d sent %d bytes:\n", newname, newport, msglen);
     dump_buffer_to_stdout(msgbuf, msglen, cfg.hexmode);
     fflush(stdout);
 
